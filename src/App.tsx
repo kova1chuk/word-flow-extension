@@ -1,21 +1,52 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
+interface StoredText {
+  selectedText?: string;
+  sourceUrl?: string;
+  timestamp?: number;
+}
 
 function App() {
-  const [isSignedIn, setIsSignedIn] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [storedText, setStoredText] = useState<StoredText | null>(null);
+  const [isProcessingText, setIsProcessingText] = useState(false);
 
-  const handleSignIn = async () => {
-    setIsLoading(true);
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setIsSignedIn(true);
-    setIsLoading(false);
-    console.log("Sign in clicked");
+  // Check for stored text when component mounts
+  useEffect(() => {
+    checkForStoredText();
+  }, []);
+
+  const checkForStoredText = async () => {
+    try {
+      const response = await chrome.runtime.sendMessage({
+        action: "getStoredText",
+      });
+      if (response && response.selectedText) {
+        setStoredText(response);
+      }
+    } catch (error) {
+      console.log("No stored text found or error occurred");
+    }
   };
 
-  const handleSignOut = () => {
-    setIsSignedIn(false);
-    console.log("Sign out clicked");
+  const clearStoredText = async () => {
+    try {
+      await chrome.runtime.sendMessage({ action: "clearStoredText" });
+      setStoredText(null);
+    } catch (error) {
+      console.error("Error clearing stored text:", error);
+    }
+  };
+
+  const handleProcessText = async () => {
+    if (!storedText?.selectedText) return;
+
+    setIsProcessingText(true);
+    // Simulate AI processing
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    setIsProcessingText(false);
+
+    // Here you would integrate with your AI service
+    console.log("Processing text with AI:", storedText.selectedText);
   };
 
   return (
@@ -27,70 +58,61 @@ function App() {
             <span className="text-xl">✍️</span>
           </div>
           <h1 className="text-xl font-bold mb-1">WordFlow</h1>
-          <p className="text-blue-100 text-sm">
-            Enhance your writing experience
-          </p>
+          <p className="text-blue-100 text-sm">Process selected text with AI</p>
         </div>
       </div>
 
       {/* Content */}
       <div className="p-6">
-        {!isSignedIn ? (
-          <div className="text-center">
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <span className="text-2xl">🚀</span>
+        {/* Selected Text Display */}
+        {storedText?.selectedText ? (
+          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-sm font-semibold text-blue-900">
+                Selected Text
+              </h3>
+              <button
+                onClick={clearStoredText}
+                className="text-blue-500 hover:text-blue-700 text-xs"
+              >
+                ✕
+              </button>
             </div>
-            <h2 className="text-lg font-semibold mb-3 text-gray-900">
-              Welcome to WordFlow!
-            </h2>
-            <p className="text-gray-600 mb-6 text-sm leading-relaxed">
-              Sign in to unlock powerful writing tools, AI assistance, and
-              productivity features that will transform your writing workflow.
-            </p>
+            <div className="text-sm text-blue-800 mb-3 leading-relaxed max-h-24 overflow-y-auto">
+              "{storedText.selectedText}"
+            </div>
+            {storedText.sourceUrl && (
+              <div className="text-xs text-blue-600 mb-3 truncate">
+                Source: {storedText.sourceUrl}
+              </div>
+            )}
             <button
-              className={`w-full py-3 px-6 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium rounded-lg transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed`}
-              onClick={handleSignIn}
-              disabled={isLoading}
+              onClick={handleProcessText}
+              disabled={isProcessingText}
+              className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white text-sm font-medium rounded-md transition-colors duration-200"
             >
-              {isLoading ? (
+              {isProcessingText ? (
                 <div className="flex items-center justify-center">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  Signing in...
+                  <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-2"></div>
+                  Processing...
                 </div>
               ) : (
-                "Sign In"
+                "🤖 Process with AI"
               )}
             </button>
           </div>
         ) : (
-          <div className="text-center">
-            <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <span className="text-2xl">👤</span>
+          <div className="text-center py-12">
+            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <span className="text-2xl">📝</span>
             </div>
-            <h3 className="text-lg font-semibold mb-3 text-gray-900">
-              Welcome back!
-            </h3>
-            <p className="text-gray-600 mb-6 text-sm leading-relaxed">
-              You're all set to use WordFlow. Your writing tools are ready and
-              waiting.
+            <h2 className="text-lg font-semibold mb-3 text-gray-900">
+              No Text Selected
+            </h2>
+            <p className="text-gray-600 text-sm leading-relaxed">
+              Select text on any webpage, right-click, and choose "WordFlow:
+              Process with AI" from the context menu to get started.
             </p>
-
-            {/* Quick Actions */}
-            <div className="grid grid-cols-2 gap-3 mb-6">
-              <button className="bg-gray-50 hover:bg-gray-100 text-gray-700 text-sm py-3 px-4 rounded-lg transition-all duration-200 border border-gray-200 hover:border-gray-300 hover:shadow-sm">
-                ✨ AI Assist
-              </button>
-              <button className="bg-gray-50 hover:bg-gray-100 text-gray-700 text-sm py-3 px-4 rounded-lg transition-all duration-200 border border-gray-200 hover:border-gray-300 hover:shadow-sm">
-                📝 Templates
-              </button>
-            </div>
-
-            <button
-              className="w-full py-3 px-6 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-all duration-200 border border-gray-200 hover:border-gray-300"
-              onClick={handleSignOut}
-            >
-              Sign Out
-            </button>
           </div>
         )}
       </div>
@@ -101,7 +123,7 @@ function App() {
           <span className="font-medium">Version 0.0.1</span>
           <div className="flex items-center space-x-2">
             <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-            <span className="font-medium">Connected</span>
+            <span className="font-medium">Ready</span>
           </div>
         </div>
       </div>
