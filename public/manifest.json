@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "WordFlow Extension",
+  "version": "0.0.1",
+  "description": "A Chrome extension for WordFlow",
+  "permissions": ["activeTab", "storage"],
+  "action": {
+    "default_popup": "index.html",
+    "default_title": "WordFlow"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_end"
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  }
+}
