@@ -1,4 +1,7 @@
 import { useState, useEffect } from "react";
+import { useAuth } from "./contexts/AuthContext";
+import { Auth } from "./components/auth/Auth";
+import { UserProfile } from "./components/auth/UserProfile";
 
 interface StoredText {
   selectedText?: string;
@@ -7,13 +10,16 @@ interface StoredText {
 }
 
 function App() {
+  const { user, loading } = useAuth();
   const [storedText, setStoredText] = useState<StoredText | null>(null);
   const [isProcessingText, setIsProcessingText] = useState(false);
 
   // Check for stored text when component mounts
   useEffect(() => {
-    checkForStoredText();
-  }, []);
+    if (user) {
+      checkForStoredText();
+    }
+  }, [user]);
 
   const checkForStoredText = async () => {
     try {
@@ -23,7 +29,7 @@ function App() {
       if (response && response.selectedText) {
         setStoredText(response);
       }
-    } catch (error) {
+    } catch {
       console.log("No stored text found or error occurred");
     }
   };
@@ -49,8 +55,31 @@ function App() {
     console.log("Processing text with AI:", storedText.selectedText);
   };
 
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="w-96 min-h-[500px] bg-white text-gray-900 overflow-hidden">
+        <div className="flex items-center justify-center h-full">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show authentication if user is not signed in
+  if (!user) {
+    return <Auth />;
+  }
+
+  // Show main app if user is authenticated
   return (
     <div className="w-96 min-h-[500px] bg-white text-gray-900 overflow-hidden">
+      {/* User Profile Header */}
+      <UserProfile />
+
       {/* Header */}
       <div className="bg-gradient-to-r from-blue-600 to-indigo-700 p-6 text-white">
         <div className="text-center">

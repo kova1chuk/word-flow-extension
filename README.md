@@ -1,70 +1,109 @@
-# React + TypeScript + Vite
+# WordFlow Extension
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A browser extension that allows users to select text on any webpage and process it with AI. Built with React, TypeScript, and Vite.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Text Selection**: Select text on any webpage and process it with AI
+- **User Authentication**: Secure authentication powered by Supabase
+- **Google OAuth**: Sign in with Google accounts for convenience
+- **Modern UI**: Beautiful, responsive interface built with Tailwind CSS
+- **Chrome Extension**: Works seamlessly as a browser extension
 
-## Expanding the ESLint configuration
+## Getting Started
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Prerequisites
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- Node.js (v16 or higher)
+- npm or yarn
+- A Supabase account and project
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+### Installation
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+1. Clone the repository:
+
+```bash
+git clone <your-repo-url>
+cd word-flow-extension
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+2. Install dependencies:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
 ```
-# word-flow-extension
+
+3. Set up Supabase authentication (see [SUPABASE_SETUP.md](./SUPABASE_SETUP.md) for detailed instructions)
+
+4. Create a `.env` file with your Supabase credentials:
+
+```bash
+VITE_SUPABASE_URL=your_supabase_project_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+
+5. Start the development server:
+
+```bash
+npm run dev
+```
+
+6. Build the extension:
+
+```bash
+npm run build:extension
+```
+
+## Development
+
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run build:extension` - Build the Chrome extension
+- `npm run watch:extension` - Watch mode for extension development
+- `npm run lint` - Run ESLint
+
+## Project Structure
+
+```
+src/
+├── components/
+│   └── auth/           # Authentication components
+│       ├── Auth.tsx    # Main auth component
+│       ├── SignIn.tsx  # Sign in form
+│       ├── SignUp.tsx  # Sign up form
+│       ├── ForgotPassword.tsx # Password reset
+│       └── UserProfile.tsx    # User profile display
+├── contexts/
+│   └── AuthContext.tsx # Authentication context
+├── lib/
+│   └── supabase.ts     # Supabase client configuration
+├── App.tsx             # Main application component
+└── main.tsx            # Application entry point
+```
+
+## Authentication
+
+The extension uses Supabase for authentication, providing:
+
+- User registration and login
+- Google OAuth sign-in
+- Password reset functionality
+- Secure session management
+- User profile management
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
+
+## License
+
+This project is licensed under the MIT License.
+
+## Support
+
+For help with Supabase setup, see [SUPABASE_SETUP.md](./SUPABASE_SETUP.md).
+For general support, please open an issue on GitHub.
